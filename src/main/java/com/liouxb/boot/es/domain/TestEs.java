@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class TestEs {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+//    private int testEsId;
 
     private String name;
 

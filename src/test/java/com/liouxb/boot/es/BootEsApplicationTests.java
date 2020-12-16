@@ -83,14 +83,16 @@ class BootEsApplicationTests {
     @Test
     void addDocument() throws IOException {
         // 创建对象
-        TestEs testEs = new TestEs(100, "测试姓名1", 18, LocalDateTime.now(), LocalDateTime.now(), false);
+//        TestEs testEs = new TestEs("测试姓名1", 18, LocalDateTime.now(), LocalDateTime.now(), false);
+        TestEs testEs = new TestEs();
+        testEs.setName("java-api-test")
+                .setAge(15);
         // 创建请求
-        IndexRequest indexRequest = new IndexRequest("test_es");
+        IndexRequest indexRequest = new IndexRequest("test_es", "_doc");
         // 规则 PUT test_es/_doc/1
-        indexRequest.id("1");
+        indexRequest.id("2");
         indexRequest.timeout(TimeValue.timeValueSeconds(1));
         // 将我们的数据放入请求 json
-//        indexRequest.source(JSON.toJSONString(user), XContentType.JSON);
         indexRequest.source(new ObjectMapper().writeValueAsString(testEs), XContentType.JSON);
         // 客户端发送请求， 获取响应的结果
         IndexResponse indexResponse = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
@@ -109,7 +111,8 @@ class BootEsApplicationTests {
         getRequest.fetchSourceContext(new FetchSourceContext(false));
         getRequest.storedFields("_none_");
         boolean exists = restHighLevelClient.exists(getRequest, RequestOptions.DEFAULT);
-        System.out.println(exists); // true
+
+        System.out.println(exists);
     }
 
     /**
@@ -117,11 +120,11 @@ class BootEsApplicationTests {
      */
     @Test
     void getDocument() throws IOException {
-        GetRequest getRequest = new GetRequest("test_es");
+        GetRequest getRequest = new GetRequest("test_es","_doc","2");
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
         // 打印文档的内容
-        System.out.println(response.getSourceAsString()); // {"age":18,"name":"高志红"}
-        System.out.println(response); // {"_index":"gao_index","_type":"_doc","_id":"1","_version":1,"_seq_no":0,"_primary_term":1,"found":true,"_source":{"age":18,"name":"高志红"}}
+        System.out.println(response.getSourceAsString());
+        System.out.println(response);
     }
 
     /**
@@ -129,13 +132,16 @@ class BootEsApplicationTests {
      */
     @Test
     void updateDocument() throws IOException {
-        UpdateRequest updateRequest = new UpdateRequest("test_es", "int", "1");
+        UpdateRequest updateRequest = new UpdateRequest("test_es", "_doc", "5");
         updateRequest.timeout(TimeValue.timeValueSeconds(1));
-        TestEs testEs = new TestEs(111, "测试xingming", 18, LocalDateTime.now(), LocalDateTime.now(), false);
+        TestEs testEs = new TestEs();
+        testEs.setAge(13)
+                .setName("温明-version-1");
 
         updateRequest.doc(new ObjectMapper().writeValueAsString(testEs), XContentType.JSON);
         UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
-        System.out.println(updateResponse.status()); // OK
+
+        System.out.println(updateResponse.status());
     }
 
     /**
@@ -143,10 +149,11 @@ class BootEsApplicationTests {
      */
     @Test
     void deleteDocument() throws IOException {
-        DeleteRequest deleteRequest = new DeleteRequest("test_es");
+        DeleteRequest deleteRequest = new DeleteRequest("test_es","_doc","3");
         deleteRequest.timeout(TimeValue.timeValueSeconds(1));
         DeleteResponse deleteResponse = restHighLevelClient.delete(deleteRequest, RequestOptions.DEFAULT);
-        System.out.println(deleteResponse.status()); // OK
+
+        System.out.println(deleteResponse.status());
     }
 
     /**
@@ -157,18 +164,20 @@ class BootEsApplicationTests {
         BulkRequest bulkRequest = new BulkRequest();
         bulkRequest.timeout(TimeValue.timeValueSeconds(10));
         List<TestEs> userList = new ArrayList<>();
-        userList.add(new TestEs(131, "测试xingming", 18, LocalDateTime.now(), LocalDateTime.now(), false));
-        userList.add(new TestEs(132, "测试xingming", 18, LocalDateTime.now(), LocalDateTime.now(), false));
-        userList.add(new TestEs(133, "测试xingming", 18, LocalDateTime.now(), LocalDateTime.now(), false));
-        userList.add(new TestEs(134, "测试xingming", 18, LocalDateTime.now(), LocalDateTime.now(), false));
+        userList.add(new TestEs().setAge(12).setName("测试-11"));
+        userList.add(new TestEs().setAge(13).setName("测试-12"));
+        userList.add(new TestEs().setAge(14).setName("测试-13"));
+        userList.add(new TestEs().setAge(15).setName("测试-14"));
+        userList.add(new TestEs().setAge(16).setName("测试-15"));
         // 批处理请求
         for (int i = 0; i < userList.size(); i++) {
-            bulkRequest.add(new IndexRequest("gao_index")
+            bulkRequest.add(new IndexRequest("test_es","_doc")
                     .id(i + 1 + "")
                     .source(new ObjectMapper().writeValueAsString(userList.get(i)), XContentType.JSON));
         }
         BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-        System.out.println(bulkResponse.hasFailures()); // 是否失败 false 代表没有失败
+        // 是否失败 false 代表没有失败
+        System.out.println(bulkResponse.hasFailures());
     }
 
     /**
@@ -176,12 +185,12 @@ class BootEsApplicationTests {
      */
     @Test
     void Search() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("gao_index");
+        SearchRequest searchRequest = new SearchRequest("test_es");
         // 构建搜索条件
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // 我们可以使用QueryBuilders工具类来实现
         // QueryBuilders.matchAllQuery() 匹配所有
-        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "高志红");
+        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "测试数据");
         searchSourceBuilder.query(matchQueryBuilder);
         // 分页
         searchSourceBuilder.from(0);
