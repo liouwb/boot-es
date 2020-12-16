@@ -1,0 +1,39 @@
+server:
+  port: 8081
+
+spring:
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          endpoints: localhost:9200
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+#    schema: classpath:boot-es.sql
+#    data: classpath:data.sql
+    platform: h2
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:boot-es
+    username: root
+    password: 123456
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+  jpa:
+    show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+# MyBatis-plus
+mybatis-plus:
+  # 配置*.mapper.xml文件位置，不然找不到
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.liouxb.boot.es.domain
+  # 配置控制台打印完整带参数SQL语句
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
