@@ -51,6 +51,7 @@
 ## 配置ik分词器插件
 
 - 同样在elasticsearch官网下载和es版本一致的ik分词器插件
+- ik分词器的下载地址:[https://github.com/medcl/elasticsearch-analysis-ik/releases](https://github.com/medcl/elasticsearch-analysis-ik/releases)
 
 ![image-20201217110927066](README.assets/image-20201217110927066.png)
 
