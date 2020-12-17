@@ -132,7 +132,7 @@ GET _analyze
 GET _analyze
 {
   "analyzer" : "ik_max_word",
-  "text" : "温明"
+  "text" : "中国"
 }
 ```
 
