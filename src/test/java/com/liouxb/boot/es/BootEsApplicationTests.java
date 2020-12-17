@@ -181,7 +181,7 @@ class BootEsApplicationTests {
     }
 
     /**
-     * 花样查询二十四式
+     * 花样查询
      */
     @Test
     void Search() throws IOException {
@@ -190,16 +190,17 @@ class BootEsApplicationTests {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // 我们可以使用QueryBuilders工具类来实现
         // QueryBuilders.matchAllQuery() 匹配所有
-        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "测试数据");
+        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "测试");
         searchSourceBuilder.query(matchQueryBuilder);
         // 分页
         searchSourceBuilder.from(0);
-        searchSourceBuilder.size(1);
+        searchSourceBuilder.size(10);
         searchSourceBuilder.timeout(TimeValue.timeValueSeconds(10));
         searchRequest.source(searchSourceBuilder);
         SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         System.out.println(new ObjectMapper().writeValueAsString(searchResponse.getHits()));
-        System.out.println("—————————————我是分隔线————————————");
+
+        System.out.println("—————————————————————————");
         for (SearchHit documentFields : searchResponse.getHits().getHits()) {
             System.out.println(documentFields.getSourceAsMap());
         }
